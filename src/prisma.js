@@ -9,6 +9,10 @@ const prisma = new Prisma({
 // prisma.query.users("OPERATION ARG","SELECTION SET")
 //ASYNC/AWAIT prisma bindings
 const createPostForUser = async (authorId,data)=>{
+    const userExists = await prisma.exists.User({
+        id:authorId
+    })
+    if(!userExists) throw new Error("NO such user exist")
     const post = await prisma.mutation.createPost({
         data:{
             ...data,
@@ -18,16 +22,15 @@ const createPostForUser = async (authorId,data)=>{
                 }
             }
         }
-    },`{id}`)
-    const user = await prisma.query.user({
-        where:{
-            id: authorId
-        }
-    },`{id name email posts{id title published}}`)
-
-    return user
+    },`{author{id name email posts{id title published}}}`)
+    
+    return post.author
 }
 const updatePostForUser = async (postId,data) => {
+    const postExists = await prisma.exists.Post({
+        id:postId
+    })
+    if(!postExists) throw new Error("No such post exists")
     const post = await prisma.mutation.updatePost({
         data:{
             ...data
@@ -35,35 +38,36 @@ const updatePostForUser = async (postId,data) => {
         where:{
             id: postId
         }
-    },`{author{id}}`)
-    const user = await prisma.query.user({
-        where:{
-            id: post.author.id
-        }
-    },`{id name email posts{id title published body}}`)
-    return user
+    },`{author{id name email posts{id title published}}}`)
+    return post.author
 }
 // createPostForUser('ck8xafy0k002q0775g8p40c0t',{
-//     title: "ninjoihfniaa",
+//     title: "this is new",
 //     body:"hahfjeqpa",
 //     published: true
 // })
 // .then(user=>{
 //     console.log(JSON.stringify(user,null,2))
 // })
+// .catch(err=>{
+//     console.log(err.message)
+// })
 // updatePostForUser('ck8xcmer4009a07752gg5h8m0',{
-//     title:"it is updated!!!!",
-//     body:"fuhewf;ouihbufgbw;ufuwgbfu;h",
-//     published:false,
+//     title:"it is updated and refactored!!!!",
+//     body:"hey there!!",
+//     published:true,
 // }).then(user=>{
 //     console.log(JSON.stringify(user,null,2))
 // }).catch(err=>{
-//     console.log(err)
+//     console.log(err.message)
 // })
 
 //checking availiblity of object in the database
-prisma.exists.User({
-        id:"efwf"
-}).then(exists=>{
-    console.log(exists)
-})
+// prisma.exists.Comment({
+//         id:"ck8j8sert00550799pfuj9okl",
+//         author:{
+//             id:'ck8j8l415000x0799oydxo67a'
+//         }
+// }).then(exists=>{
+//     console.log(exists)
+// })
