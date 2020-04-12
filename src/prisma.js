@@ -41,7 +41,6 @@ const updatePostForUser = async (postId,data) => {
             id: post.author.id
         }
     },`{id name email posts{id title published body}}`)
-
     return user
 }
 // createPostForUser('ck8xafy0k002q0775g8p40c0t',{
@@ -52,12 +51,19 @@ const updatePostForUser = async (postId,data) => {
 // .then(user=>{
 //     console.log(JSON.stringify(user,null,2))
 // })
-updatePostForUser('ck8xcmer4009a07752gg5h8m0',{
-    title:"it is updated!!!!",
-    body:"fuhewf;ouihbufgbw;ufuwgbfu;h",
-    published:false,
-}).then(user=>{
-    console.log(JSON.stringify(user,null,2))
-}).catch(err=>{
-    console.log(err)
+// updatePostForUser('ck8xcmer4009a07752gg5h8m0',{
+//     title:"it is updated!!!!",
+//     body:"fuhewf;ouihbufgbw;ufuwgbfu;h",
+//     published:false,
+// }).then(user=>{
+//     console.log(JSON.stringify(user,null,2))
+// }).catch(err=>{
+//     console.log(err)
+// })
+
+//checking availiblity of object in the database
+prisma.exists.User({
+        id:"efwf"
+}).then(exists=>{
+    console.log(exists)
 })
