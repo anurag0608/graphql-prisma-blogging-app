@@ -14,7 +14,7 @@ services:
           default:
             connector: postgres
             host: anurag-prisma-dev-server.cnzzu50mzmqz.us-east-2.rds.amazonaws.com
-            database: postgres
+            database: prisma_test
             user: anurag
             password: 152452abc
             ssl: true

@@ -1,5 +1,5 @@
 # source: http://localhost:4466
-# timestamp: Sun Apr 12 2020 21:18:50 GMT+0530 (India Standard Time)
+# timestamp: Tue Apr 14 2020 01:31:42 GMT+0530 (India Standard Time)
 
 type AggregateComment {
   count: Int!
@@ -945,7 +945,7 @@ type User implements Node {
   id: ID!
   name: String!
   email: String!
-  age: Int!
+  age: Int
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
   comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Comment!]
 }
@@ -964,7 +964,7 @@ input UserCreateInput {
   id: ID
   name: String!
   email: String!
-  age: Int!
+  age: Int
   posts: PostCreateManyWithoutAuthorInput
   comments: CommentCreateManyWithoutAuthorInput
 }
@@ -983,7 +983,7 @@ input UserCreateWithoutCommentsInput {
   id: ID
   name: String!
   email: String!
-  age: Int!
+  age: Int
   posts: PostCreateManyWithoutAuthorInput
 }
 
@@ -991,7 +991,7 @@ input UserCreateWithoutPostsInput {
   id: ID
   name: String!
   email: String!
-  age: Int!
+  age: Int
   comments: CommentCreateManyWithoutAuthorInput
 }
 
@@ -1019,7 +1019,7 @@ type UserPreviousValues {
   id: ID!
   name: String!
   email: String!
-  age: Int!
+  age: Int
 }
 
 type UserSubscriptionPayload {

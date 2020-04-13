@@ -27,14 +27,6 @@ const Query = {
             }
         }
        return prisma.query.users(opArgs, info)
-        //second arg can be null/string/object
-        //info comes from client
-        // if(!args.query){
-        //      return db.users;
-        // }else{
-        //     //we'll use array.filter which returns new set objects from the given array which statisfy a given condition. In this case its string match
-        //     return db.users.filter((user)=>  user.name.toLocaleLowerCase().includes(args.query.toLocaleLowerCase()) );
-        // }
     },
     posts(parent, args, { prisma }, info){
         let opArgs = {}
@@ -48,14 +40,6 @@ const Query = {
             }
         }
         return prisma.query.posts(opArgs,info)
-
-        // if(!args.query){
-        //      return db.posts;
-        // }else{
-        //      return db.posts.filter((post)=>{
-        //          return ( post.title.toLocaleLowerCase().includes(args.query.toLocaleLowerCase()) || post.body.toLocaleLowerCase().includes(args.query.toLocaleLowerCase()) );
-        //      });
-        // }
     },
     comments(parent, args,{ prisma }, info){
         return prisma.query.comments(null,info);
