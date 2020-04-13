@@ -16,7 +16,17 @@ const Query = {
         }
     },
     users(parent, args, { prisma }, info){
-       return prisma.query.users(null, info)
+        let opArgs = {}
+        if(args.query){
+            opArgs.where = {
+                OR:[{
+                    name_contains:args.query
+                },{
+                    email_contains: args.query
+                }]
+            }
+        }
+       return prisma.query.users(opArgs, info)
         //second arg can be null/string/object
         //info comes from client
         // if(!args.query){
@@ -27,8 +37,17 @@ const Query = {
         // }
     },
     posts(parent, args, { prisma }, info){
-        
-        return prisma.query.posts(null,info)
+        let opArgs = {}
+        if(args.query){
+            opArgs.where = {
+                OR:[{
+                    title_contains:args.query
+                },{
+                    body_contains:args.query
+                }]
+            }
+        }
+        return prisma.query.posts(opArgs,info)
 
         // if(!args.query){
         //      return db.posts;
@@ -38,8 +57,10 @@ const Query = {
         //      });
         // }
     },
-    comments(parent, args,{db}, info){
-        return db.comments;
+    comments(parent, args,{ prisma }, info){
+        return prisma.query.comments(null,info);
+        //since prisma is fetching all the data from the database from info object which is a object, 
+        //so there is no need of any other resolver for resolving author associated with comments
     }
     
  }
