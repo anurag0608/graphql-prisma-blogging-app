@@ -37,7 +37,6 @@ input createPostInput{
     title: String!
     body: String!
     published: Boolean!
-    author: ID!
 }
 input updatePostInput{
     title: String
