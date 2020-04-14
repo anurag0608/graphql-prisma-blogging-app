@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 
 const Mutation = {
     async createUser(parent, args, {prisma}, info){
@@ -7,14 +8,20 @@ const Mutation = {
        }
         const hash = await bcrypt.hash(args.data.password,12)
 
-        return prisma.mutation.createUser({
+        const user = await prisma.mutation.createUser({
            
             data: {
                 ...args.data,
                 password: hash
             }
         
-        },info)
+        })
+        // console.log(user)
+        //if we write that we want both user and token then it'll fail because createUser cannot return token obj
+        return {
+            user,
+            token: jwt.sign({userId: user.id},"willbeasecretkey",{algorithm:'HS512',expiresIn:'1h'})
+        }
       
     },
     async deleteUser(parent, args, {prisma}, info){
