@@ -1,18 +1,21 @@
 const Subscription = {
         comment:{
-            subscribe(parent,args,{db,pubsub},info){
+            subscribe(parent,args,{ prisma },info){
                 const { postId } = args;
-                const post = db.posts.find((post)=> post.id === postId && post.published);
-                if(!post){
-                    throw new Error("No post found!")
-                }
-                //publish the new comment form createComment mutation
-                return pubsub.asyncIterator(`comment ${postId}`)
+                return prisma.subscription.comment({
+                   where:{
+                        node:{
+                            post:{
+                                id: postId
+                            }
+                        }
+                   } 
+                },info)
             }
         },
         post:{
-            subscribe(parent,args,{db,pubsub},info){
-                return pubsub.asyncIterator('post');
+            subscribe(parent,args,{ prisma },info){
+                return prisma.subscription.post(null,info)
             }
         }
 }
