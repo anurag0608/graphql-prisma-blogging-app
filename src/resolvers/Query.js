@@ -1,13 +1,33 @@
 import getUserid from '../utils/getUserid'
 const Query = {
-    me(){
-        return {
-             id:'1',
-             name:"Anurag",
-             email:'anuragv.1020@gmail.com',
-             age:20
-        }
+    me(parent, args, {prisma, request},info){
+        const userId = getUserid(request)
+        return prisma.query.user({
+            where:{
+                id:userId
+            }
+        },info)
     },
+   async myPosts(parent,args,{prisma,request},info){
+        const userId = getUserid(request)
+        const opArgs = {
+            where:{
+                author:{
+                    id:userId
+                }
+            }
+        }
+        if(args.query){
+            opArgs.where.OR = [
+            {
+                title_contains:args.query
+            },
+            {
+                body_contains:args.query
+            }]
+        }
+        return prisma.query.posts(opArgs,info)
+   },
    async post(parent, args, { prisma, request }, info){
         const userId = getUserid(request,false)
         //getUserid is returning null when authRequire is false
@@ -57,15 +77,21 @@ const Query = {
        return prisma.query.users(opArgs, info)
     },
     posts(parent, args, { prisma }, info){
-        let opArgs = {}
-        if(args.query){
-            opArgs.where = {
-                OR:[{
-                    title_contains:args.query
-                },{
-                    body_contains:args.query
-                }]
+        let opArgs = {
+            where:{
+                published:true
             }
+        }
+        if(args.query){
+            opArgs.where.OR = [
+                {
+                    title_contains:args.query
+                },
+                {
+                    body_contains:args.query
+                }
+            ]
+            
         }
         return prisma.query.posts(opArgs,info)
     },
