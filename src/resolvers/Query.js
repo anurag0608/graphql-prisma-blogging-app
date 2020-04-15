@@ -75,6 +75,7 @@ const Query = {
             }
         }
        return prisma.query.users(opArgs, info)
+       //parent will return all the fields provided in the info
     },
     posts(parent, args, { prisma }, info){
         let opArgs = {
