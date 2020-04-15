@@ -23,6 +23,7 @@ type Subscription{
     # suscribe to a particular post
     comment(postId: ID!): CommentSubscriptionPayload!
     post : PostSubscriptionPayload!
+    myPost: PostSubscriptionPayload!
 }
  
 input createUserInput{
@@ -33,6 +34,7 @@ input createUserInput{
 input updateUserInput{
     name: String
     email: String
+    password: String
 }
 input createPostInput{
     title: String!

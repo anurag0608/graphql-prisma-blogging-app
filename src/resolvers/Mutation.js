@@ -1,13 +1,11 @@
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import hashPassword from '../utils/hashPassword'
 import getUserid from '../utils/getUserid'
-
+import generateToken from '../utils/generateToken'
 const Mutation = {
     async createUser(parent, args, {prisma}, info){
-       if(args.data.password.length < 8){
-           throw new Error("Password length must be 8 chars or greater!")
-       }
-        const hash = await bcrypt.hash(args.data.password,12)
+       
+        const hash = await hashPassword(args.data.password.trim())
 
         const user = await prisma.mutation.createUser({
            
@@ -21,7 +19,7 @@ const Mutation = {
         //if we write that we want both user and token then it'll fail because createUser cannot return token obj
         return {
             user,
-            token: jwt.sign({userId: user.id},"willbeasecretkey",{algorithm:'HS512',expiresIn:'1h'})
+            token: generateToken(user.id)
         }
       
     },
@@ -41,7 +39,7 @@ const Mutation = {
         }
         return{
             user,
-            token: jwt.sign({userId: user.id},"willbeasecretkey",{algorithm:'HS512',expiresIn:'1h'})
+            token:generateToken(user.id)
         }
     },
     async deleteUser(parent, args, {prisma,request}, info){
@@ -54,7 +52,14 @@ const Mutation = {
     },
     async updateUser(parent, args, {prisma,request}, info){
            const userId = getUserid(request)
-            return prisma.mutation.updateUser({
+        
+           if(typeof args.data.password.trim() === 'string'){
+            
+            args.data.password = await hashPassword(args.data.password.trim())
+
+           }
+           
+           return prisma.mutation.updateUser({
                 where:{
                     id: userId
                 },
@@ -97,6 +102,7 @@ const Mutation = {
     },
     async updatePost(parent, args, {prisma,request},info){
         const userId = getUserid(request)
+       
         //check post owernship
         const postExists = await prisma.exists.Post({
             id:args.id,
@@ -107,6 +113,23 @@ const Mutation = {
         if(!postExists){
             throw new Error("Failed to update the post!")
         }
+        const isPublished = await prisma.exists.Post({
+            id:args.id,
+            author:{
+                id:userId
+            },
+            published: true
+        })
+        if(isPublished && !args.data.published){
+            //if prev published and about to unpublished delete all associated comments
+            await prisma.mutation.deleteManyComments({
+                where:{
+                    post:{
+                        id:args.id
+                    }
+                }
+            })
+        }
         return prisma.mutation.updatePost({
             where:{
                 id:args.id
@@ -114,9 +137,15 @@ const Mutation = {
             data: args.data
         },info)
     },
-    createComment(parent, args, {prisma,request}, info){
+    async createComment(parent, args, {prisma,request}, info){
         const userId = getUserid(request)
-
+        const postExists = await prisma.exists.Post({
+            id:args.data.post,
+            published: true
+        })
+        if(!postExists){
+            throw new Error("No such post exists!")
+        }
         return prisma.mutation.createComment({ 
                 data:{
                         text: args.data.text,
@@ -134,7 +163,7 @@ const Mutation = {
              },info)
         
     },
-   async updateComment(parent, args, {prisma,request},info){
+    async updateComment(parent, args, {prisma,request},info){
         const userId = getUserid(request)
         //check ownership
         const commentExists = await prisma.exists.Comment({

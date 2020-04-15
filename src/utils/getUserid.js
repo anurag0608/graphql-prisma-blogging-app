@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken'
 const getUserid = (request,authRequire = true)=>{
-    const header = request.request.headers.authorization
+    const header = request.request ?
+    request.request.headers.authorization :    //incase of http req 
+    request.connection.context.Authorization  //incase of subscription auth header lives in thi
+    
     if(header){
         const token = header.replace('Bearer ','')
         let decoded
