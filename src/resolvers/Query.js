@@ -1,3 +1,4 @@
+import getUserid from '../utils/getUserid'
 const Query = {
     me(){
         return {
@@ -7,13 +8,40 @@ const Query = {
              age:20
         }
     },
-    post(){
-        return {
-            id: '40',
-            title:'F.R.I.E.N.D.S',
-            body:"GraphQL is amazing!",
-            published:true
+   async post(parent, args, { prisma, request }, info){
+        const userId = getUserid(request,false)
+        //getUserid is returning null when authRequire is false
+        // if no defined userId will be undefined and while defining condition
+        /**
+         * where:{
+         *  id:args.id,
+         *  OR:[{published=true},{author:{ id: userId}}]
+         * }
+         * 
+         * so when userId is set to undefined --> the second field of array will always return true because it can be
+         * matched with any value as it's value is undefined
+         */
+        //Also in 'post' query prisma provides only id field in where clause, so we'll use posts for ease 
+        const posts = await prisma.query.posts({
+            where:{
+                id:args.id,
+                OR:[
+                    {
+                        published:true
+                    },
+                    {
+                        author:{
+                            id:userId
+                        }
+                    }
+                ]
+            }
+        },info)
+        if(posts.length===0){
+            throw new Error("Post not found!")
         }
+        // console.log(posts)
+        return posts[0]
     },
     users(parent, args, { prisma }, info){
         let opArgs = {}
