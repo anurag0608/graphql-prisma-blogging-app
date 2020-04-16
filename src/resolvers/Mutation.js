@@ -5,7 +5,7 @@ import generateToken from '../utils/generateToken'
 const Mutation = {
     async createUser(parent, args, {prisma}, info){
        
-        const hash = await hashPassword(args.data.password.trim())
+        const hash = await hashPassword(args.data.password.trim()) //hashPassword(...) returns promise.. so we'll wait till that promise is resolved
 
         const user = await prisma.mutation.createUser({
            
