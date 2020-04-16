@@ -11,6 +11,9 @@ const Query = {
    async myPosts(parent,args,{prisma,request},info){
         const userId = getUserid(request)
         const opArgs = {
+            first:args.first,
+            skip:args.skip,
+            after:args.after,
             where:{
                 author:{
                     id:userId
@@ -64,7 +67,11 @@ const Query = {
         return posts[0]
     },
     users(parent, args, { prisma }, info){
-        let opArgs = {}
+        let opArgs = {
+            first: args.first,
+            skip: args.skip,
+            after:args.after
+        }
         if(args.query){
             opArgs.where = {
                 OR:[{
@@ -77,6 +84,9 @@ const Query = {
     },
     posts(parent, args, { prisma }, info){
         let opArgs = {
+            first:args.first,
+            skip:args.skip,
+            after:args.after,
             where:{
                 published:true
             }
@@ -95,7 +105,12 @@ const Query = {
         return prisma.query.posts(opArgs,info)
     },
     comments(parent, args,{ prisma }, info){
-        return prisma.query.comments(null,info);
+        const opArgs={
+            first:args.first,
+            skip:args.skip,
+            after:args.after
+        }
+        return prisma.query.comments(opArgs,info);
         //since prisma is fetching all the data from the database from info object which is a object, 
         //so there is no need of any other resolver for resolving author associated with comments
     }
