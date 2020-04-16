@@ -19,7 +19,7 @@ var getUserid = function getUserid(request) {
     var decoded; //it can work without try catch block also... the error will be thrown to the client
 
     try {
-      decoded = _jsonwebtoken["default"].verify(token, "willbeasecretkey", {
+      decoded = _jsonwebtoken["default"].verify(token, process.env.JWT_SECRET, {
         algorithms: ['HS512']
       });
     } catch (err) {

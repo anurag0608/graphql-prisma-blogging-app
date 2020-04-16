@@ -12,7 +12,7 @@ var _index = require("./resolvers/index");
 var prisma = new _prismaBinding.Prisma({
   typeDefs: 'src/generated/prisma.graphql',
   endpoint: process.env.PRISMA_ENDPOINT,
-  secret: "prismascretstring",
+  secret: process.env.PRISMA_SECRET,
   fragmentReplacements: _index.fragmentReplacements
 });
 exports["default"] = prisma;
