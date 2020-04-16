@@ -9,7 +9,7 @@ const getUserid = (request,authRequire = true)=>{
         let decoded
         //it can work without try catch block also... the error will be thrown to the client
         try{
-            decoded = jwt.verify(token,"willbeasecretkey",{algorithms:['HS512']})
+            decoded = jwt.verify(token,process.env.JWT_SECRET,{algorithms:['HS512']})
     
         }catch(err){
             throw new Error("Invalid token")
