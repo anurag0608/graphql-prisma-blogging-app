@@ -34,6 +34,10 @@ var Query = {
               prisma = _ref2.prisma, request = _ref2.request;
               userId = (0, _getUserid["default"])(request);
               opArgs = {
+                first: args.first,
+                skip: args.skip,
+                after: args.after,
+                orderBy: args.orderBy,
                 where: {
                   author: {
                     id: userId
@@ -118,14 +122,17 @@ var Query = {
   },
   users: function users(parent, args, _ref4, info) {
     var prisma = _ref4.prisma;
-    var opArgs = {};
+    var opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after,
+      orderBy: args.orderBy
+    };
 
     if (args.query) {
       opArgs.where = {
         OR: [{
           name_contains: args.query
-        }, {
-          email_contains: args.query
         }]
       };
     }
@@ -135,6 +142,10 @@ var Query = {
   posts: function posts(parent, args, _ref5, info) {
     var prisma = _ref5.prisma;
     var opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after,
+      orderBy: args.orderBy,
       where: {
         published: true
       }
@@ -152,7 +163,13 @@ var Query = {
   },
   comments: function comments(parent, args, _ref6, info) {
     var prisma = _ref6.prisma;
-    return prisma.query.comments(null, info); //since prisma is fetching all the data from the database from info object which is a object, 
+    var opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after,
+      orderBy: args.orderBy
+    };
+    return prisma.query.comments(opArgs, info); //since prisma is fetching all the data from the database from info object which is a object, 
     //so there is no need of any other resolver for resolving author associated with comments
   }
 };

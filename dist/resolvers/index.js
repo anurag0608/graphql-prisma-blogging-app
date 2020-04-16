@@ -3,7 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.resolvers = void 0;
+exports.fragmentReplacements = exports.resolvers = void 0;
+
+var _prismaBinding = require("prisma-binding");
 
 var _Query = _interopRequireDefault(require("./Query"));
 
@@ -28,3 +30,5 @@ var resolvers = {
   Comment: _Comment["default"]
 };
 exports.resolvers = resolvers;
+var fragmentReplacements = (0, _prismaBinding.extractFragmentReplacements)(resolvers);
+exports.fragmentReplacements = fragmentReplacements;

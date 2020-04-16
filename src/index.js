@@ -20,6 +20,6 @@ const server = new GraphQLServer({
     fragmentReplacements
 });
 
-server.start({port: 3000},()=>{
+server.start({port: process.env.PORT || 3000},()=>{
     console.log("GraphQL server started at port 3000");
 });

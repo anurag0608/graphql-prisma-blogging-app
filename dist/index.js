@@ -22,10 +22,11 @@ var server = new _graphqlYoga.GraphQLServer({
       prisma: _prisma["default"],
       request: request
     };
-  }
+  },
+  fragmentReplacements: _index.fragmentReplacements
 });
 server.start({
-  port: 3000
+  port: process.env.PORT || 3000
 }, function () {
   console.log("GraphQL server started at port 3000");
 });

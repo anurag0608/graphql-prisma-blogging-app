@@ -11,7 +11,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 var getUserid = function getUserid(request) {
   var authRequire = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var header = request.request.headers.authorization;
+  var header = request.request ? request.request.headers.authorization : //incase of http req 
+  request.connection.context.Authorization; //incase of subscription auth header lives in thi
 
   if (header) {
     var token = header.replace('Bearer ', '');

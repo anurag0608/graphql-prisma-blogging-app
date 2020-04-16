@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --ext js,graphql --exec babel-node ./src/index.js",
+    "start": "env-cmd -f ./config/dev.env node ./dist/index.js",
+    "heroku-postbuild":"babel src --out-dir dist --copy-files",
+    "dev": "env-cmd -f ./config/dev.env nodemon --ext js,graphql --exec babel-node ./src/index.js",
     "build": "babel src --out-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "get-schema": "graphql get-schema -p prisma"
@@ -13,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "env-cmd": "^10.1.0",
     "graphql-cli": "^3.0.14",
     "graphql-yoga": "^1.18.3",
     "jsonwebtoken": "^8.5.1",

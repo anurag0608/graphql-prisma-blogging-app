@@ -25,6 +25,20 @@ var User = {
         return null;
       }
     }
+  },
+  posts: {
+    fragment: 'fragment Userid on User{id}',
+    resolve: function resolve(parent, args, _ref2, info) {
+      var prisma = _ref2.prisma;
+      return prisma.query.posts({
+        where: {
+          published: true,
+          author: {
+            id: parent.id
+          }
+        }
+      });
+    }
   }
 };
 exports["default"] = User;

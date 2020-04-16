@@ -7,9 +7,11 @@ exports["default"] = void 0;
 
 var _bcryptjs = _interopRequireDefault(require("bcryptjs"));
 
-var _jsonwebtoken = _interopRequireDefault(require("jsonwebtoken"));
+var _hashPassword = _interopRequireDefault(require("../utils/hashPassword"));
 
 var _getUserid = _interopRequireDefault(require("../utils/getUserid"));
+
+var _generateToken = _interopRequireDefault(require("../utils/generateToken"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -32,40 +34,26 @@ var Mutation = {
           switch (_context.prev = _context.next) {
             case 0:
               prisma = _ref.prisma;
-
-              if (!(args.data.password.length < 8)) {
-                _context.next = 3;
-                break;
-              }
-
-              throw new Error("Password length must be 8 chars or greater!");
+              _context.next = 3;
+              return (0, _hashPassword["default"])(args.data.password.trim());
 
             case 3:
-              _context.next = 5;
-              return _bcryptjs["default"].hash(args.data.password, 12);
-
-            case 5:
               hash = _context.sent;
-              _context.next = 8;
+              _context.next = 6;
               return prisma.mutation.createUser({
                 data: _objectSpread({}, args.data, {
                   password: hash
                 })
               });
 
-            case 8:
+            case 6:
               user = _context.sent;
               return _context.abrupt("return", {
                 user: user,
-                token: _jsonwebtoken["default"].sign({
-                  userId: user.id
-                }, "willbeasecretkey", {
-                  algorithm: 'HS512',
-                  expiresIn: '1h'
-                })
+                token: (0, _generateToken["default"])(user.id)
               });
 
-            case 10:
+            case 8:
             case "end":
               return _context.stop();
           }
@@ -115,12 +103,7 @@ var Mutation = {
             case 11:
               return _context2.abrupt("return", {
                 user: user,
-                token: _jsonwebtoken["default"].sign({
-                  userId: user.id
-                }, "willbeasecretkey", {
-                  algorithm: 'HS512',
-                  expiresIn: '1h'
-                })
+                token: (0, _generateToken["default"])(user.id)
               });
 
             case 12:
@@ -163,6 +146,19 @@ var Mutation = {
             case 0:
               prisma = _ref4.prisma, request = _ref4.request;
               userId = (0, _getUserid["default"])(request);
+
+              if (!(typeof args.data.password.trim() === 'string')) {
+                _context4.next = 6;
+                break;
+              }
+
+              _context4.next = 5;
+              return (0, _hashPassword["default"])(args.data.password.trim());
+
+            case 5:
+              args.data.password = _context4.sent;
+
+            case 6:
               return _context4.abrupt("return", prisma.mutation.updateUser({
                 where: {
                   id: userId
@@ -170,7 +166,7 @@ var Mutation = {
                 data: args.data
               }, info));
 
-            case 3:
+            case 7:
             case "end":
               return _context4.stop();
           }
@@ -240,7 +236,7 @@ var Mutation = {
   },
   updatePost: function updatePost(parent, args, _ref7, info) {
     return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
-      var prisma, request, userId, postExists;
+      var prisma, request, userId, postExists, isPublished;
       return regeneratorRuntime.wrap(function _callee6$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
@@ -267,6 +263,33 @@ var Mutation = {
               throw new Error("Failed to update the post!");
 
             case 7:
+              _context6.next = 9;
+              return prisma.exists.Post({
+                id: args.id,
+                author: {
+                  id: userId
+                },
+                published: true
+              });
+
+            case 9:
+              isPublished = _context6.sent;
+
+              if (!(isPublished && !args.data.published)) {
+                _context6.next = 13;
+                break;
+              }
+
+              _context6.next = 13;
+              return prisma.mutation.deleteManyComments({
+                where: {
+                  post: {
+                    id: args.id
+                  }
+                }
+              });
+
+            case 13:
               return _context6.abrupt("return", prisma.mutation.updatePost({
                 where: {
                   id: args.id
@@ -274,7 +297,7 @@ var Mutation = {
                 data: args.data
               }, info));
 
-            case 8:
+            case 14:
             case "end":
               return _context6.stop();
           }
@@ -283,58 +306,44 @@ var Mutation = {
     }))();
   },
   createComment: function createComment(parent, args, _ref8, info) {
-    var prisma = _ref8.prisma,
-        request = _ref8.request;
-    var userId = (0, _getUserid["default"])(request);
-    return prisma.mutation.createComment({
-      data: {
-        text: args.data.text,
-        author: {
-          connect: {
-            id: userId
-          }
-        },
-        post: {
-          connect: {
-            id: args.data.post
-          }
-        }
-      }
-    }, info);
-  },
-  updateComment: function updateComment(parent, args, _ref9, info) {
     return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
-      var prisma, request, userId, commentExists;
+      var prisma, request, userId, postExists;
       return regeneratorRuntime.wrap(function _callee7$(_context7) {
         while (1) {
           switch (_context7.prev = _context7.next) {
             case 0:
-              prisma = _ref9.prisma, request = _ref9.request;
-              userId = (0, _getUserid["default"])(request); //check ownership
-
+              prisma = _ref8.prisma, request = _ref8.request;
+              userId = (0, _getUserid["default"])(request);
               _context7.next = 4;
-              return prisma.exists.Comment({
-                id: args.id,
-                author: {
-                  id: userId
-                }
+              return prisma.exists.Post({
+                id: args.data.post,
+                published: true
               });
 
             case 4:
-              commentExists = _context7.sent;
+              postExists = _context7.sent;
 
-              if (commentExists) {
+              if (postExists) {
                 _context7.next = 7;
                 break;
               }
 
-              throw new Error("Failed to update the comment!");
+              throw new Error("No such post exists!");
 
             case 7:
-              return _context7.abrupt("return", prisma.mutation.updateComment({
-                data: args.data,
-                where: {
-                  id: args.id
+              return _context7.abrupt("return", prisma.mutation.createComment({
+                data: {
+                  text: args.data.text,
+                  author: {
+                    connect: {
+                      id: userId
+                    }
+                  },
+                  post: {
+                    connect: {
+                      id: args.data.post
+                    }
+                  }
                 }
               }, info));
 
@@ -346,14 +355,14 @@ var Mutation = {
       }, _callee7);
     }))();
   },
-  deleteComment: function deleteComment(parent, args, _ref10, info) {
+  updateComment: function updateComment(parent, args, _ref9, info) {
     return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
       var prisma, request, userId, commentExists;
       return regeneratorRuntime.wrap(function _callee8$(_context8) {
         while (1) {
           switch (_context8.prev = _context8.next) {
             case 0:
-              prisma = _ref10.prisma, request = _ref10.request;
+              prisma = _ref9.prisma, request = _ref9.request;
               userId = (0, _getUserid["default"])(request); //check ownership
 
               _context8.next = 4;
@@ -372,10 +381,11 @@ var Mutation = {
                 break;
               }
 
-              throw new Error("Failed to delete the comment!");
+              throw new Error("Failed to update the comment!");
 
             case 7:
-              return _context8.abrupt("return", prisma.mutation.deleteComment({
+              return _context8.abrupt("return", prisma.mutation.updateComment({
+                data: args.data,
                 where: {
                   id: args.id
                 }
@@ -387,6 +397,49 @@ var Mutation = {
           }
         }
       }, _callee8);
+    }))();
+  },
+  deleteComment: function deleteComment(parent, args, _ref10, info) {
+    return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
+      var prisma, request, userId, commentExists;
+      return regeneratorRuntime.wrap(function _callee9$(_context9) {
+        while (1) {
+          switch (_context9.prev = _context9.next) {
+            case 0:
+              prisma = _ref10.prisma, request = _ref10.request;
+              userId = (0, _getUserid["default"])(request); //check ownership
+
+              _context9.next = 4;
+              return prisma.exists.Comment({
+                id: args.id,
+                author: {
+                  id: userId
+                }
+              });
+
+            case 4:
+              commentExists = _context9.sent;
+
+              if (commentExists) {
+                _context9.next = 7;
+                break;
+              }
+
+              throw new Error("Failed to delete the comment!");
+
+            case 7:
+              return _context9.abrupt("return", prisma.mutation.deleteComment({
+                where: {
+                  id: args.id
+                }
+              }, info));
+
+            case 8:
+            case "end":
+              return _context9.stop();
+          }
+        }
+      }, _callee9);
     }))();
   }
 };
