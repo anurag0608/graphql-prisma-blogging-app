@@ -38,5 +38,57 @@ query{
         email
     }
 }`
-
-export{createUser,getProfile,login,getUsers}
+const getPosts = gql`
+query{
+    posts {
+        id
+        title
+        body
+        published
+    }
+}`
+const myPosts = gql`
+query{
+    myPosts{
+        id
+        title
+        body
+        published
+    }
+}`
+const updatePost = gql`
+mutation($data:updatePostInput!,$id:ID!){
+    updatePost(
+        id:$id,
+        data:$data
+    ){
+        id
+        title
+        body
+        published
+    }
+}`
+const createPost = gql`
+mutation($data:createPostInput!){
+    createPost(
+        data:$data
+    ){
+        id
+        title
+        body
+        published
+    }
+}`
+const deletePost = gql`
+        mutation($id:ID!){
+            deletePost(
+                    id:$id
+            ){
+                id
+            }
+        }
+    `
+export{
+    createUser,getProfile,login,getUsers,
+    getPosts,myPosts,updatePost,createPost,deletePost
+}

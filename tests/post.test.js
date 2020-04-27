@@ -1,11 +1,10 @@
 
 import '@babel/polyfill/noConflict'
 import 'cross-fetch/polyfill'
-import { gql } from 'apollo-boost'
 import getClient from "./utils/getClient"
 import prisma from '../src/prisma'
 import seedDatabase,{userOne,postOne,postTwo} from "./utils/seedDatabase"
-
+import {getPosts,myPosts,updatePost,createPost,deletePost} from './utils/operations'
 const client = getClient()
 
 beforeEach(async ()=>{
@@ -13,16 +12,7 @@ beforeEach(async ()=>{
 },60000)
 
 test("should expose all public posts",async ()=>{
-    const getPosts = gql`
-        query{
-            posts {
-                id
-                title
-                body
-                published
-            }
-        }
-    `
+   
     const response = await client.query({
         query: getPosts
     })
@@ -33,16 +23,7 @@ test("should expose all public posts",async ()=>{
 
 test("should expose myposts",async ()=>{
     const client = getClient(userOne.jwt)
-    const myPosts = gql`
-        query{
-            myPosts{
-                id
-                title
-                body
-                published
-            }
-        }
-    `
+   
     const {data} = await client.query({
         query: myPosts
     })
@@ -51,23 +32,15 @@ test("should expose myposts",async ()=>{
 
 test('should be able to update a post',async ()=>{
     const client = getClient(userOne.jwt)
-    const updatePost = gql`
-        mutation{
-            updatePost(
-                id:"${postOne.post.id}",
-                data:{
-                    title:"changed"
-                }
-            ){
-                id
-                title
-                body
-                published
-            }
-        }
-    `
+    const variables = {
+        data:{
+            title:"changed"
+        },
+        id: postOne.post.id
+    }
     const { data } = await client.mutate({
-        mutation: updatePost
+        mutation: updatePost,
+        variables
     })
     expect(data.updatePost.published).toBe(postOne.post.published)
     const exists = await prisma.exists.Post({
@@ -80,24 +53,16 @@ test('should be able to update a post',async ()=>{
 
 test('should be able to create a new post',async ()=>{
     const client = getClient(userOne.jwt)
-    const createPost = gql`
-        mutation{
-            createPost(
-                data:{
-                    title:"this is my test new post!!",
-                    body:"..",
-                    published:true
-                }
-            ){
-                id
-                title
-                body
-                published
-            }
+    const variables = {
+        data:{
+            title:"this is my test new post!!",
+            body:"..",
+            published:true
         }
-    `
+    }
     const {data} = await client.mutate({
-        mutation: createPost
+        mutation: createPost,
+        variables
     })
     const exists = await prisma.exists.Post({
         id: data.createPost.id
@@ -113,17 +78,12 @@ test('should be able to create a new post',async ()=>{
 
 test('should be able to delete the newely created post',async ()=>{
     const client = getClient(userOne.jwt)
-    const deletePost = gql`
-        mutation{
-            deletePost(
-                    id:"${postTwo.post.id}"
-            ){
-                id
-            }
-        }
-    `
+    const variables = {
+        id:postTwo.post.id
+    }
     const {data} = await client.mutate({
-        mutation: deletePost
+        mutation: deletePost,
+        variables
     })
     const exists = await prisma.exists.Post({
         id: data.deletePost.id
