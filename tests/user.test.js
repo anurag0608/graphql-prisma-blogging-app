@@ -16,7 +16,7 @@ test("should expose public author profile",async ()=>{
     const response = await client.query({
         query: getUsers
     })
-    expect(response.data.users.length).toBe(1)
+    expect(response.data.users.length).toBe(2) //since there are total two users
     expect(response.data.users[0].name).toBe('axdu')
     //check email should be null because user is not authenticated
     expect(response.data.users[0].email).toBe(null)
