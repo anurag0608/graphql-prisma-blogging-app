@@ -3,9 +3,10 @@ import '@babel/polyfill/noConflict'
 import 'cross-fetch/polyfill'
 import getClient from "./utils/getClient"
 import prisma from '../src/prisma'
-import {gql} from 'apollo-boost'
-import seedDatabase,{userOne,userTwo, commentTwo, commentOne} from "./utils/seedDatabase"
-import {deleteComment} from './utils/operations'
+import seedDatabase,{userOne,userTwo, commentTwo, commentOne, postOne} from "./utils/seedDatabase"
+import {deleteComment,subscribeToComments, getUsers} from './utils/operations'
+
+const client = getClient()
 
 beforeEach(async ()=>{
    await seedDatabase()
@@ -37,3 +38,27 @@ test("should not delete other user's comment",async ()=>{
         })
     ).rejects.toThrow()
 },60000)
+test("should subscribe to comments", async (done)=>{
+    const variables = {
+        postId: postOne.post.id
+    }
+    client.subscribe({
+        query: subscribeToComments,
+        variables
+    }).subscribe({
+        next(response) {
+            expect(response.data.comment.mutation).toBe('DELETED')
+            done()  // done is neccesary because by default jest justs ignore .subscribe after some time
+                    // and don't wait for subscibe to fire up
+                    // to make jest to expect true only when subscribe is fired up
+                    // excute done() after firing off the subscription event
+        }
+    })
+
+    // change a comment to trigger the subscription event
+    await prisma.mutation.deleteComment({
+        where:{
+            id: commentOne.comment.id
+        }
+    })
+})

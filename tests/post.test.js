@@ -4,7 +4,7 @@ import 'cross-fetch/polyfill'
 import getClient from "./utils/getClient"
 import prisma from '../src/prisma'
 import seedDatabase,{userOne,postOne,postTwo} from "./utils/seedDatabase"
-import {getPosts,myPosts,updatePost,createPost,deletePost} from './utils/operations'
+import {getPosts,myPosts,updatePost,createPost,deletePost, subscribeToPosts} from './utils/operations'
 const client = getClient()
 
 beforeEach(async ()=>{
@@ -89,4 +89,25 @@ test('should be able to delete the newely created post',async ()=>{
         id: data.deletePost.id
     })
     expect(exists).toBe(false)
+},60000)
+
+test("should subscribe to Post",async ()=>{
+    client.subscribe({
+        query: subscribeToPosts
+    }).subscribe({
+        next(response) {
+            expect(response.data.post.mutation).toBe('UPDATED')
+            done()  
+        }
+    })
+
+    // change a comment to trigger the subscription event
+    await prisma.mutation.updatePost({
+        data:{
+            title:"changed!! for testing"
+        },
+        where:{
+            id: postOne.post.id
+        }
+    })
 },60000)
