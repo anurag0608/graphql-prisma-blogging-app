@@ -2,16 +2,17 @@
 <p align='center'><img src='./images/prisma_.png' width=500 height=170></p>
 <br />
 
-## Bloging Application API using GraphQL and Prisma
+## Bloging Application API using GraphQL, Prisma and Apollo Boost
+#### Using [graphql-yoga](https://github.com/prisma-labs/graphql-yoga) framework for creating  GraphQL API server in NodeJS
 #### Here is the [datamodel.graphql](./prisma/datamodel.graphql)
-     
 ### First install all the required packages and tools
 - `docker` and `docker-compose` from here
     [Official Docker Downloads](https://docs.docker.com/get-docker/)
 - This project is using Prisma v1.34, you can download from npm library<br />
     ` > npm i prisma`
 #### To run this project follow these steps
-- First create a `config` directory in the root of the project and create three .env vars
+- Go to root directory and install all npm packages using `npm i`
+- Create a `config` directory in the root of the project and create three .env vars
     ```
     ./conifg
     |_
