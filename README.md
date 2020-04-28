@@ -57,6 +57,6 @@ This will fetch required datamodel from prisma endpoint running at `http://local
 - First deploy prisma test environment using `prisma deploy -e ../config/test.env`,
     - Also don't forget to give different service and stage name to PRISMA_ENDPOINT in test mode. <br />
 - `> npm run test`
-
+## Interact with this app from this [link](https://secure-shore-41760.herokuapp.com/), this will open Graphql playground for this current app which is running in Heroku.  
 ## License
  This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details
